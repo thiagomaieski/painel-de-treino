@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JuliaFit">
+  <link rel="apple-touch-icon" href="/painel-de-treino/assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="/painel-de-treino/manifest.json">
+  <title>JuliaFit — Treino & Dieta</title>
+  <script type="module" crossorigin src="/painel-de-treino/assets/index-C72meLR2.js"></script>
+  <link rel="stylesheet" crossorigin href="/painel-de-treino/assets/index-CdkeVJrw.css">
+</head>
+<body>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast" id="toast">
+    <span id="toast-icon">✅</span>
+    <span id="toast-msg">Sucesso!</span>
+  </div>
+
+  <!-- WEIGHT PROMPT OVERLAY -->
+  <div class="weight-prompt-overlay" id="weight-prompt">
+    <div class="weight-prompt-card">
+      <div style="font-size: 2.5rem; margin-bottom: 12px;">⚖️</div>
+      <h2>Bom dia, Julia!</h2>
+      <p>Vamos registrar seu peso de hoje para manter os cálculos metabólicos precisos?</p>
+      <div class="weight-prompt-input-group">
+        <input type="number" id="prompt-kg" placeholder="00.0" step="0.1" min="30" max="300">
+        <span>kg</span>
+      </div>
+      <button class="weight-prompt-btn" onclick="window.UIManager.savePromptWeight()">Salvar Registro</button>
+      <a class="weight-prompt-skip" onclick="window.UIManager.closeWeightPrompt()">Agora não, obrigado</a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- HERO HEADER (SHARED OR TOP OF DASHBOARD)  -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-avatar" id="hero-avatar-wrap">
+        <img id="hero-avatar-img" src="" alt="J" style="display:none;width:100%;height:100%;border-radius:50%;object-fit:cover;">
+        <span id="hero-avatar-initial">J</span>
+      </div>
+      <div class="hero-name">
+        <h1>Julia Maria</h1>
+        <p>Foco: Emagrecimento</p>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-stat-compact">
+        <div class="val" id="hero-peso">—kg</div>
+        <div class="lbl">Atual</div>
+      </div>
+      <div class="hero-stat-compact">
+        <div class="val" id="hero-meta">78kg</div>
+        <div class="lbl">Meta</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DASHBOARD / INÍCIO                         -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="page active" id="page-inicio">
+    <p class="section-label">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Perfil Metabólico Dinâmico
+    </p>
+    
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-lbl">TMB (Basal)</div>
+        <div class="metric-val" id="calc-tmb">—</div>
+        <div class="metric-sub">kcal/dia em repouso</div>
+      </div>
+      <div class="metric-card accent">
+        <div class="metric-lbl">TDEE (Gasto Total)</div>
+        <div class="metric-val" id="calc-tdee">—</div>
+        <div class="metric-sub">c/ treino (fator 1.45)</div>
+      </div>
+      <div class="metric-card highlight">
+        <div class="metric-lbl">Meta Calórica</div>
+        <div class="metric-val" id="calc-meta">—</div>
+        <div class="metric-sub">Alvo p/ emagrecimento</div>
+      </div>
+      <div class="metric-card success">
+        <div class="metric-lbl">Déficit Alvo</div>
+        <div class="metric-val" id="calc-deficit">—</div>
+        <div class="metric-sub">kcal/dia eliminadas</div>
+      </div>
+    </div>
+
+    <div class="card" style="background: var(--pink-soft); border-color: var(--pink-border);">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 017 7c0 4-3 6-4 8H9c-1-2-4-4-4-8a7 7 0 017-7z"/><path d="M9 21h6m-3-1v1"/></svg>
+        Proteína Diária (Meta)
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 8px;">
+        <span style="font-size: 1.8rem; font-weight: 800; color: var(--text-main);" id="calc-prot">—g</span>
+        <span style="font-size: 0.8rem; color: var(--text-secondary);">(2.0g/kg)</span>
+      </div>
+      <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">Essencial para preservar massa magra no déficit.</p>
+    </div>
+
+    <p class="section-label">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Média de Gasto Ativo
+    </p>
+    <div class="card">
+      <div class="profile-row">
+        <span class="lbl">Média de Treino/Dia</span>
+        <span class="val" style="color: var(--pink-primary);">~450 kcal</span>
+      </div>
+      <div class="profile-row">
+        <span class="lbl">Caminhadas Extras (Semana)</span>
+        <span class="val" id="dash-walk-kcal">0 kcal</span>
+      </div>
+      <div class="profile-row" style="border: none;">
+        <span class="lbl">Gasto Ativo Total Médio</span>
+        <span class="val" id="dash-active-avg" style="font-size: 1.1rem; color: var(--green-primary);">— kcal/dia</span>
+      </div>
+    </div>
+
+    <p class="section-label">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3a3 3 0 100 6 3 3 0 000-6zM7 21v-1a5 5 0 0110 0v1"/><path d="M4 21h16"/></svg>
+      Evolução de Peso
+    </p>
+    <div class="card">
+      <div class="hero-stats" style="margin-bottom: 20px;">
+        <div class="hero-stat"><div class="val" id="ws-atual">—</div><div class="lbl">Atual</div></div>
+        <div class="hero-stat"><div class="val" id="ws-perdeu" style="color: var(--green-primary);">—</div><div class="lbl">Perdido</div></div>
+        <div class="hero-stat"><div class="val" id="ws-falta">—</div><div class="lbl">Falta</div></div>
+        <div class="hero-stat"><div class="val" id="ws-progress-pct">0%</div><div class="lbl">Meta</div></div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="ws-progress-bar" style="width: 0%"></div></div>
+      
+      <div class="chart-wrap" id="chart-container" style="display: none;">
+        <canvas id="weightChart"></canvas>
+      </div>
+      
+      <div style="margin-top: 24px;">
+        <div class="weight-input-row">
+          <input type="date" id="w-date">
+          <input type="number" id="w-kg" placeholder="00.0" step="0.1">
+          <button onclick="window.UIManager.addWeightManual()" class="btn-primary">Registrar</button>
+        </div>
+        <div class="weight-log" id="weight-log">
+          <div style="text-align: center; color: var(--text-tertiary); font-size: 0.9rem; padding: 20px;">Nenhum registro.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DICAS MOVIDAS PARA O DASHBOARD -->
+    <p class="section-label">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/></svg>
+      Dicas Importantes
+    </p>
+    <div class="card">
+      <div class="tip-item"><span class="tip-icon">✔</span><span>Respeite as 6 refeições (Café, Lanche, Almoço, Tarde, Jantar, Ceia) para manter a saciedade e bater as proteínas.</span></div>
+      <div class="tip-item"><span class="tip-icon">✔</span><span>Progressão de carga: a cada 1–2 semanas, tente aumentar o peso ou repetições nos exercícios da ficha.</span></div>
+      <div class="tip-item"><span class="tip-icon">✔</span><span>Hidratação mínima de 2,5L de água por dia — essencial para performance e emagrecimento.</span></div>
+      <div class="tip-item"><span class="tip-icon">✔</span><span>Caminhada pela manhã potencializa o déficit calórico — registre na aba de Gasto para acompanhar.</span></div>
+    </div>
+    
+    <div class="motivation" style="margin-top: 24px;">Acredite em você, Julia! Cada dia na dieta e no treino é um passo mais perto da sua melhor versão. 💪</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- TREINOS (DIAS DA SEMANA)                 -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="page" id="page-treinos">
+    <!-- Seletor Horizontal de Dias (Pills) -->
+    <div class="workout-sub-tabs">
+      <button class="workout-sub-tab active" data-day="seg" onclick="window.UIManager.switchWorkoutDay('seg', this)">Seg</button>
+      <button class="workout-sub-tab" data-day="ter" onclick="window.UIManager.switchWorkoutDay('ter', this)">Ter</button>
+      <button class="workout-sub-tab" data-day="qua" onclick="window.UIManager.switchWorkoutDay('qua', this)">Qua</button>
+      <button class="workout-sub-tab" data-day="qui" onclick="window.UIManager.switchWorkoutDay('qui', this)">Qui</button>
+      <button class="workout-sub-tab" data-day="sex" onclick="window.UIManager.switchWorkoutDay('sex', this)">Sex</button>
+    </div>
+
+    <!-- SEGUNDA -->
+    <div class="workout-day-page active" id="wday-seg">
+      <div class="day-header">
+        <div class="day-header-top">
+          <h2>Segunda-Feira</h2>
+          <span class="day-kcal-badge">🔥 ~480–560 kcal</span>
+        </div>
+        <p>Inferior A (Força) · Versão Definitiva</p>
+      </div>
+
+      <div class="day-summary" id="summary-seg">
+        <div class="day-summary-title">
+          <svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Gasto calórico do dia
+        </div>
+        <div class="day-summary-rows">
+          <div class="day-summary-row"><span class="ds-lbl">Treino + cardio</span><span class="ds-val">~480–560 kcal</span></div>
+          <div class="day-summary-row" id="sum-seg-walk" style="display:none;"><span class="ds-lbl">Caminhada extra</span><span class="ds-val" id="sum-seg-walk-val">—</span></div>
+        </div>
+        <div class="day-summary-total"><span>Total estimado</span><span id="sum-seg-total">~480–560 kcal</span></div>
+      </div>
+
+      <div class="warmup">
+        <span class="warmup-icon">🔥</span>
+        <div><strong>Aquecimento</strong>5 min — mobilidade de quadril + agachamento livre sem carga</div>
+      </div>
+
+      <!-- Ex 1 -->
+      <div class="ex-card">
+        <div class="ex-top">
+          <div class="ex-num">1</div>
+          <div class="ex-info"><div class="ex-name">Leg Press 45°</div><span class="ex-equip">Máquina</span></div>
+        </div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">4</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">10–12</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">90s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Pés na largura do quadril. Não trave os joelhos no topo. Carga desafiadora.</div>
+      </div>
+
+      <!-- Ex 2 -->
+      <div class="ex-card">
+        <div class="ex-top">
+          <div class="ex-num">2</div>
+          <div class="ex-info"><div class="ex-name">Agachamento no Smith</div><span class="ex-equip">Barra Guiada</span></div>
+        </div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">8–10</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">90s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Costas retas. Desça até 90°. Progrida carga a cada 1–2 semanas.</div>
+      </div>
+
+      <!-- Ex 3 -->
+      <div class="ex-card">
+        <div class="ex-top">
+          <div class="ex-num">3</div>
+          <div class="ex-info"><div class="ex-name">Afundo Parado (Halter)</div><span class="ex-equip">Halter</span></div>
+        </div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">10 / perna</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">75s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Unilateral — maior gasto calórico. Joelho traseiro quase toca o chão.</div>
+      </div>
+
+      <!-- Ex 4 -->
+      <div class="ex-card">
+        <div class="ex-top">
+          <div class="ex-num">4</div>
+          <div class="ex-info"><div class="ex-name">Cadeira Extensora</div><span class="ex-equip">Máquina</span></div>
+        </div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">12–15</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">60s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Segure 1s no topo. Fase excêntrica lenta (desça em 3s).</div>
+      </div>
+
+      <!-- Ex 5 -->
+      <div class="ex-card">
+        <div class="ex-top">
+          <div class="ex-num">5</div>
+          <div class="ex-info"><div class="ex-name">Elevação Pélvica — Hip Thrust</div><span class="ex-equip">Banco + Barra</span></div>
+        </div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">4</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">8–12</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">90s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Pesado. Aperte o glúteo no topo por 2s. Quadril vai até a horizontal.</div>
+      </div>
+
+      <!-- Ex 6 -->
+      <div class="ex-card">
+        <div class="ex-top">
+          <div class="ex-num">6</div>
+          <div class="ex-info"><div class="ex-name">Panturrilha no Leg Press</div><span class="ex-equip">Máquina</span></div>
+        </div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">12–15</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">45s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Amplitude total — desça até sentir o alongamento na panturrilha.</div>
+      </div>
+
+      <div class="cardio-block">
+        <div class="cardio-block-top">
+          <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-1.5 1-2.5 2.5-3.5L13 8h4l4 4.5V16c0 1-1 2-2 2H5c-1 0-2-1-2-2v-2z"/><path d="M12 8l-1 5"/><path d="M16 8l-1 5"/></svg>
+          <strong>Cardio Finalizador</strong>
+          <span class="cardio-kcal">~80–110 kcal</span>
+        </div>
+        <p>12–15 min — Esteira inclinada (incl. 8–10%, 5–6 km/h)</p>
+      </div>
+
+      <!-- Caminhada do dia -->
+      <div class="walk-day-block" id="walk-seg-block">
+        <div class="walk-day-block-top">
+          <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-1.5 1-2.5 2.5-3.5L13 8h4l4 4.5V16c0 1-1 2-2 2H5c-1 0-2-1-2-2v-2z"/><path d="M12 8l-1 5"/><path d="M16 8l-1 5"/></svg>
+          <strong>Caminhada extra de manhã</strong>
+        </div>
+        <div id="walk-seg-form">
+          <div class="walk-day-form">
+            <input type="number" class="walk-day-input" id="wday-seg-min" placeholder="Minutos" min="5" max="180">
+            <button class="walk-day-btn" onclick="window.UIManager.addDayWalk('seg')">Registrar</button>
+          </div>
+        </div>
+        <div id="walk-seg-done" style="display:none;" class="walk-day-registered">
+          <span>✓</span><span id="walk-seg-done-txt"></span>
+          <button onclick="window.UIManager.removeDayWalk('seg')" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:.9rem;cursor:pointer;margin-left:auto;">✕</button>
+        </div>
+      </div>
+
+      <div class="duration">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Duração estimada: ~60–65 min
+      </div>
+      <div class="motivation">Força é construída com consistência — vai com tudo, Julia! 💪</div>
+    </div>
+
+    <!-- TERÇA -->
+    <div class="workout-day-page" id="wday-ter">
+      <div class="day-header">
+        <div class="day-header-top">
+          <h2>Terça-Feira</h2>
+          <span class="day-kcal-badge">🔥 ~300–380 kcal</span>
+        </div>
+        <p>Superior (Enxuto) · Versão Definitiva</p>
+      </div>
+
+      <div class="day-summary" id="summary-ter">
+        <div class="day-summary-title"><svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gasto calórico do dia</div>
+        <div class="day-summary-rows">
+          <div class="day-summary-row"><span class="ds-lbl">Treino + HIIT</span><span class="ds-val">~300–380 kcal</span></div>
+          <div class="day-summary-row" id="sum-ter-walk" style="display:none;"><span class="ds-lbl">Caminhada extra</span><span class="ds-val" id="sum-ter-walk-val">—</span></div>
+        </div>
+        <div class="day-summary-total"><span>Total estimado</span><span id="sum-ter-total">~300–380 kcal</span></div>
+      </div>
+
+      <div class="warmup"><span class="warmup-icon">🔥</span><div><strong>Aquecimento</strong>5 min — mobilidade escapular + rotações de ombro</div></div>
+
+      <!-- Ex 7 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">1</div><div class="ex-info"><div class="ex-name">Supino Máquina ou Halter</div><span class="ex-equip">Máquina / Halter</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">10–12</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">75s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Empurre de forma controlada. Sinta o peitoral trabalhar no retorno.</div>
+      </div>
+
+      <!-- Ex 8 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">2</div><div class="ex-info"><div class="ex-name">Puxada Frontal</div><span class="ex-equip">Máquina / Cabo</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">10–12</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">75s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Puxe até o alto do peito. Cotovelos apontam para baixo. Puxe com as costas.</div>
+      </div>
+
+      <!-- Ex 9 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">3</div><div class="ex-info"><div class="ex-name">Remada Máquina</div><span class="ex-equip">Máquina</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">10–12</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">75s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Cotovelos próximos ao corpo. Abra o peitoral ao finalizar o movimento.</div>
+      </div>
+
+      <!-- Ex 10 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">4</div><div class="ex-info"><div class="ex-name">Elevação Lateral</div><span class="ex-equip">Halter / Cabo</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">15–20</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">45s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Peso leve. Levante até a altura do ombro. Não balance o tronco.</div>
+      </div>
+
+      <!-- Ex 11 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">5</div><div class="ex-info"><div class="ex-name">Tríceps Corda</div><span class="ex-equip">Cabo</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">2</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">12–15</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">45s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Cotovelos fixos ao lado do corpo. Estenda completamente e abra a corda no final.</div>
+      </div>
+
+      <div class="cardio-block">
+        <div class="cardio-block-top">
+          <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-1.5 1-2.5 2.5-3.5L13 8h4l4 4.5V16c0 1-1 2-2 2H5c-1 0-2-1-2-2v-2z"/><path d="M12 8l-1 5"/><path d="M16 8l-1 5"/></svg>
+          <strong>Cardio HIIT Leve</strong>
+          <span class="cardio-kcal">~70–100 kcal</span>
+        </div>
+        <p>10–12 min — 30s forte / 1min leve (bicicleta ou esteira)</p>
+      </div>
+
+      <div class="walk-day-block" id="walk-ter-block">
+        <div class="walk-day-block-top"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-1.5 1-2.5 2.5-3.5L13 8h4l4 4.5V16c0 1-1 2-2 2H5c-1 0-2-1-2-2v-2z"/><path d="M12 8l-1 5"/><path d="M16 8l-1 5"/></svg><strong>Caminhada extra de manhã</strong></div>
+        <div id="walk-ter-form"><div class="walk-day-form"><input type="number" class="walk-day-input" id="wday-ter-min" placeholder="Minutos" min="5" max="180"><button class="walk-day-btn" onclick="window.UIManager.addDayWalk('ter')">Registrar</button></div></div>
+        <div id="walk-ter-done" style="display:none;" class="walk-day-registered"><span>✓</span><span id="walk-ter-done-txt"></span><button onclick="window.UIManager.removeDayWalk('ter')" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:.9rem;cursor:pointer;margin-left:auto;">✕</button></div>
+      </div>
+
+      <div class="duration"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Duração estimada: ~50–55 min</div>
+      <div class="motivation">Superior enxuto e eficiente — perfeito pro seu objetivo! ✨</div>
+    </div>
+
+    <!-- QUARTA -->
+    <div class="workout-day-page" id="wday-qua">
+      <div class="day-header">
+        <div class="day-header-top">
+          <h2>Quarta-Feira</h2>
+          <span class="day-kcal-badge">🔥 ~450–520 kcal</span>
+        </div>
+        <p>Inferior B (Posterior) · Versão Definitiva</p>
+      </div>
+
+      <div class="day-summary" id="summary-qua">
+        <div class="day-summary-title"><svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gasto calórico do dia</div>
+        <div class="day-summary-rows">
+          <div class="day-summary-row"><span class="ds-lbl">Treino + cardio moderado</span><span class="ds-val">~450–520 kcal</span></div>
+          <div class="day-summary-row" id="sum-qua-walk" style="display:none;"><span class="ds-lbl">Caminhada extra</span><span class="ds-val" id="sum-qua-walk-val">—</span></div>
+        </div>
+        <div class="day-summary-total"><span>Total estimado</span><span id="sum-qua-total">~450–520 kcal</span></div>
+      </div>
+
+      <div class="warmup"><span class="warmup-icon">🔥</span><div><strong>Aquecimento</strong>5 min — mobilidade de quadril + cadeia posterior leve</div></div>
+
+      <!-- Ex 12 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">1</div><div class="ex-info"><div class="ex-name">Stiff (Barra ou Smith)</div><span class="ex-equip">Barra / Barra Guiada</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">4</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">10–12</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">90s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Costas retas, empurre o quadril para trás. Sinta o alongamento dos isquios.</div>
+      </div>
+
+      <!-- Ex 13 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">2</div><div class="ex-info"><div class="ex-name">Mesa Flexora</div><span class="ex-equip">Máquina</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">12–15</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">60s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Fase excêntrica lenta (desça em 3s). Força nos isquiotibiais.</div>
+      </div>
+
+      <!-- Ex 14 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">3</div><div class="ex-info"><div class="ex-name">Búlgaro (Halter)</div><span class="ex-equip">Halter + Banco</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">10 / perna</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">75s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Se tiver dificuldade: troque por afundo parado. Unilateral = mais gasto calórico.</div>
+      </div>
+
+      <!-- Ex 15 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">4</div><div class="ex-info"><div class="ex-name">Cadeira Flexora (sentado)</div><span class="ex-equip">Máquina</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">12–15</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">60s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Cotovelos firmes no banco. Suba e desça com controle total.</div>
+      </div>
+
+      <!-- Ex 16 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">5</div><div class="ex-info"><div class="ex-name">Abdução Máquina</div><span class="ex-equip">Máquina</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">15–20</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">45s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Movimento lento e controlado. Excelente para glúteo médio.</div>
+      </div>
+
+      <div class="cardio-block">
+        <div class="cardio-block-top">
+          <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-1.5 1-2.5 2.5-3.5L13 8h4l4 4.5V16c0 1-1 2-2 2H5c-1 0-2-1-2-2v-2z"/><path d="M12 8l-1 5"/><path d="M16 8l-1 5"/></svg>
+          <strong>Cardio Moderado</strong>
+          <span class="cardio-kcal">~100–140 kcal</span>
+        </div>
+        <p>15–20 min — Esteira 6–7 km/h ou Elíptico ritmo constante</p>
+      </div>
+
+      <div class="walk-day-block" id="walk-qua-block">
+        <div class="walk-day-block-top"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-1.5 1-2.5 2.5-3.5L13 8h4l4 4.5V16c0 1-1 2-2 2H5c-1 0-2-1-2-2v-2z"/><path d="M12 8l-1 5"/><path d="M16 8l-1 5"/></svg><strong>Caminhada extra de manhã</strong></div>
+        <div id="walk-qua-form"><div class="walk-day-form"><input type="number" class="walk-day-input" id="wday-qua-min" placeholder="Minutos" min="5" max="180"><button class="walk-day-btn" onclick="window.UIManager.addDayWalk('qua')">Registrar</button></div></div>
+        <div id="walk-qua-done" style="display:none;" class="walk-day-registered"><span>✓</span><span id="walk-qua-done-txt"></span><button onclick="window.UIManager.removeDayWalk('qua')" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:.9rem;cursor:pointer;margin-left:auto;">✕</button></div>
+      </div>
+
+      <div class="duration"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Duração estimada: ~60–65 min</div>
+      <div class="motivation">Posterior forte, postura perfeita — você está no caminho certo! 🔥</div>
+    </div>
+
+    <!-- QUINTA -->
+    <div class="workout-day-page" id="wday-qui">
+      <div class="day-header" style="background:linear-gradient(135deg,#1B8C3A,#10B981);">
+        <div class="day-header-top">
+          <h2>Quinta-Feira</h2>
+          <span class="day-kcal-badge">🚶 ~150–250 kcal</span>
+        </div>
+        <p>Descanso Ativo · Versão Definitiva</p>
+      </div>
+
+      <div class="day-summary" id="summary-qui" style="background:linear-gradient(135deg,#1B8C3A,#10B981); color: #fff;">
+        <div class="day-summary-title" style="color: rgba(255,255,255,0.8);"><svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gasto calórico do dia</div>
+        <div class="day-summary-rows">
+          <div class="day-summary-row" style="border-bottom-color: rgba(255,255,255,0.1);"><span class="ds-lbl" style="color: rgba(255,255,255,0.7);">Caminhada / bicicleta (20–30min)</span><span class="ds-val" style="color:#fff;">~150–250 kcal</span></div>
+          <div class="day-summary-row" id="sum-qui-walk" style="display:none; border-bottom-color: rgba(255,255,255,0.1);"><span class="ds-lbl" style="color: rgba(255,255,255,0.7);">Caminhada extra</span><span class="ds-val" style="color:#fff;" id="sum-qui-walk-val">—</span></div>
+        </div>
+        <div class="day-summary-total" style="border-top-color: rgba(255,255,255,0.2); color: #fff;"><span>Total estimado</span><span id="sum-qui-total">~150–250 kcal</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="color:#34C759;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+          Objetivo do dia
+        </div>
+        <div style="font-size:.87rem;color:var(--text-secondary);line-height:1.7;">
+          Hoje é dia de <strong>recuperação ativa</strong>. Não force — apenas mantenha o corpo em movimento.<br><br>
+          Escolha <strong>uma opção:</strong><br>
+          · Caminhada ao ar livre — 20 a 30 min<br>
+          · Bicicleta ergométrica leve — 20 min<br>
+          · Alongamento suave — 15 min
+        </div>
+      </div>
+
+      <div class="walk-day-block" id="walk-qui-block">
+        <div class="walk-day-block-top"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-1.5 1-2.5 2.5-3.5L13 8h4l4 4.5V16c0 1-1 2-2 2H5c-1 0-2-1-2-2v-2z"/><path d="M12 8l-1 5"/><path d="M16 8l-1 5"/></svg><strong>Registrar caminhada de hoje</strong></div>
+        <div id="walk-qui-form"><div class="walk-day-form"><input type="number" class="walk-day-input" id="wday-qui-min" placeholder="Minutos" min="5" max="180"><button class="walk-day-btn" onclick="window.UIManager.addDayWalk('qui')">Registrar</button></div></div>
+        <div id="walk-qui-done" style="display:none;" class="walk-day-registered"><span>✓</span><span id="walk-qui-done-txt"></span><button onclick="window.UIManager.removeDayWalk('qui')" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:.9rem;cursor:pointer;margin-left:auto;">✕</button></div>
+      </div>
+
+      <div class="motivation" style="margin-top:.5rem;">Descanso faz parte do processo — seu corpo está se reconstruindo! 💚</div>
+    </div>
+
+    <!-- SEXTA -->
+    <div class="workout-day-page" id="wday-sex">
+      <div class="day-header">
+        <div class="day-header-top">
+          <h2>Sexta-Feira</h2>
+          <span class="day-kcal-badge">🔥 ~500–600 kcal</span>
+        </div>
+        <p>Inferior C (Metabólico) · Versão Definitiva</p>
+      </div>
+
+      <div class="day-summary" id="summary-sex">
+        <div class="day-summary-title"><svg style="width:12px;height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Gasto calórico do dia</div>
+        <div class="day-summary-rows">
+          <div class="day-summary-row"><span class="ds-lbl">Treino metabólico + HIIT</span><span class="ds-val">~500–600 kcal</span></div>
+          <div class="day-summary-row" id="sum-sex-walk" style="display:none;"><span class="ds-lbl">Caminhada extra</span><span class="ds-val" id="sum-sex-walk-val">—</span></div>
+        </div>
+        <div class="day-summary-total"><span>Total estimado</span><span id="sum-sex-total">~500–600 kcal</span></div>
+      </div>
+
+      <div class="warmup"><span class="warmup-icon">🔥</span><div><strong>Aquecimento</strong>5 min — caminhada na esteira inclinação leve</div></div>
+
+      <!-- Ex 17 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">1</div><div class="ex-info"><div class="ex-name">Agachamento Sumô</div><span class="ex-equip">Halter / Smith</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">12–15</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">60s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Pés bem abertos, pontas para fora. Ativa adutores e glúteos com intensidade.</div>
+      </div>
+
+      <!-- Ex 18 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">2</div><div class="ex-info"><div class="ex-name">Afundo Parado (leve)</div><span class="ex-equip">Halter</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">12 / perna</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">60s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Carga leve. Foco em ritmo e volume — dia metabólico.</div>
+      </div>
+
+      <!-- Ex 19 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">3</div><div class="ex-info"><div class="ex-name">Cadeira Flexora (leve)</div><span class="ex-equip">Máquina</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">15–20</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">45s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Volume alto, carga leve. Mantenha a queima ativa.</div>
+      </div>
+
+      <!-- Ex 20 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">4</div><div class="ex-info"><div class="ex-name">Cadeira Adutora</div><span class="ex-equip">Máquina</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">15–20</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">45s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Movimento lento. Excelente para face interna da coxa.</div>
+      </div>
+
+      <!-- Ex 21 -->
+      <div class="ex-card">
+        <div class="ex-top"><div class="ex-num">5</div><div class="ex-info"><div class="ex-name">Abdução Máquina</div><span class="ex-equip">Máquina</span></div></div>
+        <div class="ex-stats">
+          <div class="ex-stat"><div class="s-val">3</div><div class="s-lbl">Séries</div></div>
+          <div class="ex-stat"><div class="s-val">20</div><div class="s-lbl">Reps</div></div>
+          <div class="ex-stat"><div class="s-val">45s</div><div class="s-lbl">Descanso</div></div>
+        </div>
+        <div class="ex-tip">Glúteo médio em foco. Movimento controlado, amplitude total.</div>
+      </div>
+
+      <div class="cardio-block">
+        <div class="cardio-block-top">
+          <svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-1.5 1-2.5 2.5-3.5L13 8h4l4 4.5V16c0 1-1 2-2 2H5c-1 0-2-1-2-2v-2z"/><path d="M12 8l-1 5"/><path d="M16 8l-1 5"/></svg>
+          <strong>HIIT Esteira — Finalizador</strong>
+          <span class="cardio-kcal">~130–180 kcal</span>
+        </div>
+        <p>15–20 min — 40s forte (9–10 km/h) / 1min20s leve (6 km/h) — 8 rounds</p>
+      </div>
+
+      <div class="walk-day-block" id="walk-sex-block">
+        <div class="walk-day-block-top"><svg style="width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-1.5 1-2.5 2.5-3.5L13 8h4l4 4.5V16c0 1-1 2-2 2H5c-1 0-2-1-2-2v-2z"/><path d="M12 8l-1 5"/><path d="M16 8l-1 5"/></svg><strong>Caminhada extra de manhã</strong></div>
+        <div id="walk-sex-form"><div class="walk-day-form"><input type="number" class="walk-day-input" id="wday-sex-min" placeholder="Minutos" min="5" max="180"><button class="walk-day-btn" onclick="window.UIManager.addDayWalk('sex')">Registrar</button></div></div>
+        <div id="walk-sex-done" style="display:none;" class="walk-day-registered"><span>✓</span><span id="walk-sex-done-txt"></span><button onclick="window.UIManager.removeDayWalk('sex')" style="background:none;border:none;color:rgba(255,255,255,.7);font-size:.9rem;cursor:pointer;margin-left:auto;">✕</button></div>
+      </div>
+
+      <div class="duration"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Duração estimada: ~60–70 min</div>
+      <div class="motivation">Terminou a semana! Essa é a diferença entre querer e conquistar! 🏆</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- DIETA E DIÁRIO DE ALIMENTAÇÃO            -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="page" id="page-dieta">
+    
+    <!-- Meta e Consumo de Calorias -->
+    <div class="diet-dashboard">
+      <div class="modal-field" style="margin-bottom: 16px;">
+        <label>Visualizar Diário da Data</label>
+        <input type="date" id="diet-date" style="padding: 10px; font-weight: 700; border-radius: var(--radius-sm);">
+      </div>
+
+      <div class="diet-cal-grid">
+        <div class="diet-cal-box">
+          <div class="diet-cal-val" id="diet-kcal-in">0</div>
+          <div class="diet-cal-lbl">Ingerido</div>
+        </div>
+        <div class="diet-cal-box highlight">
+          <div class="diet-cal-val" id="diet-kcal-target">2300</div>
+          <div class="diet-cal-lbl">Meta</div>
+        </div>
+        <div class="diet-cal-box remaining">
+          <div class="diet-cal-val" id="diet-kcal-remaining">2300</div>
+          <div class="diet-cal-lbl" id="diet-status-label">Restantes</div>
+        </div>
+      </div>
+
+      <!-- Macros e Barras -->
+      <div class="diet-macro-bars">
+        <div class="diet-macro-item">
+          <div class="diet-macro-label-row">
+            <span class="diet-macro-lbl">🍗 Proteína</span>
+            <span class="diet-macro-val" id="diet-val-prot">0g / 0g</span>
+          </div>
+          <div class="diet-macro-bar-container">
+            <div class="diet-macro-bar protein" id="diet-bar-prot" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="diet-macro-item">
+          <div class="diet-macro-label-row">
+            <span class="diet-macro-lbl">🍠 Carboidrato</span>
+            <span class="diet-macro-val" id="diet-val-carb">0g / 0g</span>
+          </div>
+          <div class="diet-macro-bar-container">
+            <div class="diet-macro-bar carb" id="diet-bar-carb" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="diet-macro-item">
+          <div class="diet-macro-label-row">
+            <span class="diet-macro-lbl">🥑 Gordura</span>
+            <span class="diet-macro-val" id="diet-val-fat">0g / 0g</span>
+          </div>
+          <div class="diet-macro-bar-container">
+            <div class="diet-macro-bar fat" id="diet-bar-fat" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buscador de Alimentos -->
+    <div class="diet-search-container">
+      <div class="search-input-wrapper">
+        <input type="text" id="food-search" placeholder="🔍 Buscar alimento (ex: frango, arroz)...">
+      </div>
+      <div class="search-results" id="search-results"></div>
+    </div>
+
+    <!-- Refeições Cadastradas -->
+    <div id="diet-meals-list">
+      <!-- Café -->
+      <div class="meal-card cafe" id="meal-cafe">
+        <div class="meal-header">
+          <span>☕ Café da Manhã</span>
+          <span class="meal-kcal"></span>
+        </div>
+        <div class="meal-list"></div>
+      </div>
+
+      <!-- Lanche da Manhã -->
+      <div class="meal-card lanche" id="meal-lanche-manha">
+        <div class="meal-header">
+          <span>🍎 Lanche da Manhã</span>
+          <span class="meal-kcal"></span>
+        </div>
+        <div class="meal-list"></div>
+      </div>
+
+      <!-- Almoço -->
+      <div class="meal-card almoco" id="meal-almoco">
+        <div class="meal-header">
+          <span>🍽️ Almoço</span>
+          <span class="meal-kcal"></span>
+        </div>
+        <div class="meal-list"></div>
+      </div>
+
+      <!-- Lanche -->
+      <div class="meal-card tarde" id="meal-tarde">
+        <div class="meal-header">
+          <span>🍌 Lanche da Tarde</span>
+          <span class="meal-kcal"></span>
+        </div>
+        <div class="meal-list"></div>
+      </div>
+
+      <!-- Jantar -->
+      <div class="meal-card jantar" id="meal-jantar">
+        <div class="meal-header">
+          <span>🥗 Jantar</span>
+          <span class="meal-kcal"></span>
+        </div>
+        <div class="meal-list"></div>
+      </div>
+
+      <!-- Extras/Ceia -->
+      <div class="meal-card ceia" id="meal-ceia">
+        <div class="meal-header">
+          <span>🥛 Ceia / Extras</span>
+          <span class="meal-kcal"></span>
+        </div>
+        <div class="meal-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- CAMINHADAS EXTRAS (EVOLUÇÃO)             -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="page" id="page-caminhada">
+    <p class="section-label">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Resumo de Caminhadas
+    </p>
+    <div class="walk-stats-row">
+      <div class="wk-stat"><div class="wv" id="wk-total-min">—</div><div class="wl">Min esta semana</div></div>
+      <div class="wk-stat"><div class="wv" id="wk-total-kcal">—</div><div class="wl">kcal extras</div></div>
+      <div class="wk-stat"><div class="wv" id="wk-total-walks">—</div><div class="wl">Caminhadas</div></div>
+    </div>
+
+    <div class="walk-input-card">
+      <div class="card-title" style="color:var(--green-primary);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14c0-1.5 1-2.5 2.5-3.5L13 8h4l4 4.5V16c0 1-1 2-2 2H5c-1 0-2-1-2-2v-2z"/><path d="M12 8l-1 5"/><path d="M16 8l-1 5"/></svg>
+        Registrar Caminhada Manual
+      </div>
+      <div class="walk-input-row">
+        <div class="walk-input-group">
+          <input type="date" id="walk-date">
+          <input type="number" id="walk-min" placeholder="Minutos" min="5" max="300" step="1">
+        </div>
+        <button class="add-walk-btn" onclick="window.UIManager.addWalkManual()">+ Registrar Atividade</button>
+      </div>
+      <div style="font-size:.8rem; color:var(--text-tertiary); margin-top:16px; line-height:1.5; font-weight: 500;">
+        Estimativa: ~4,5 kcal/min para o peso atual da Julia. O gasto será somado ao dia correspondente no cálculo metabólico.
+      </div>
+    </div>
+
+    <p class="section-label">Histórico Recente</p>
+    <div class="card">
+      <div class="weight-log" id="walk-log">
+        <div style="text-align: center; color: var(--text-tertiary); font-size: 0.9rem; padding: 20px;">Nenhuma caminhada registrada ainda.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:var(--green-primary);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+        Estimativa de Gasto (Referência)
+      </div>
+      <div class="profile-row"><span class="lbl">20 min de caminhada</span><span class="val" style="color:var(--green-primary);">~90 kcal</span></div>
+      <div class="profile-row"><span class="lbl">30 min de caminhada</span><span class="val" style="color:var(--green-primary);">~135 kcal</span></div>
+      <div class="profile-row"><span class="lbl">45 min de caminhada</span><span class="val" style="color:var(--green-primary);">~200 kcal</span></div>
+      <div class="profile-row"><span class="lbl">60 min de caminhada</span><span class="val" style="color:var(--green-primary);">~270 kcal</span></div>
+      <div style="font-size:.75rem; color:var(--text-tertiary); margin-top:10px; font-weight: 500;">Baseado em ~4,5 kcal/min · ritmo moderado · Julia</div>
+    </div>
+  </div>
+
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- AJUSTES & BANCO DE ALIMENTOS             -->
+  <!-- ══════════════════════════════════════════ -->
+  <div class="page" id="page-config">
+    <div class="settings-section">
+      <div class="settings-section-title">Perfil & Biometria</div>
+      <div class="avatar-uploader">
+        <img id="settings-avatar-img" class="avatar-preview" src="" alt="J" style="display: none;">
+        <div id="settings-avatar-placeholder" class="avatar-preview">J</div>
+        <button class="avatar-btn" onclick="document.getElementById('avatar-file-input').click()">Alterar Foto</button>
+        <input type="file" id="avatar-file-input" class="file-input" accept="image/*" onchange="window.SettingsManager.handleAvatarUpload(event)">
+      </div>
+      <div class="settings-list">
+        <button class="settings-item" onclick="window.SettingsManager.promptIdade()">
+          <span>Idade</span>
+          <span class="settings-item-val" id="config-idade">20 Anos <span class="settings-icon-right">›</span></span>
+        </button>
+        <button class="settings-item" onclick="window.SettingsManager.promptAltura()">
+          <span>Altura</span>
+          <span class="settings-item-val" id="config-altura">1.75 m <span class="settings-icon-right">›</span></span>
+        </button>
+        <button class="settings-item" onclick="window.SettingsManager.promptPesoInicial()">
+          <span>Peso Inicial</span>
+          <span class="settings-item-val" id="config-peso-inicial">118 kg <span class="settings-icon-right">›</span></span>
+        </button>
+        <button class="settings-item" onclick="window.SettingsManager.promptPesoMeta()">
+          <span>Meta de Peso</span>
+          <span class="settings-item-val" id="config-peso-meta">78 kg <span class="settings-icon-right">›</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>Banco de Alimentos</span>
+        <button style="background:var(--pink-soft); color:var(--pink-primary); border:none; padding:4px 10px; border-radius:8px; font-weight:800; font-size:0.75rem; cursor:pointer;" onclick="window.UIManager.openAddCustomFoodModal()">+ Novo</button>
+      </div>
+      <div class="diet-search-container" style="padding: 0 20px 16px; margin-bottom:0;">
+        <div class="search-input-wrapper">
+          <input type="text" id="config-food-search" placeholder="🔍 Buscar alimento para editar..." oninput="window.SettingsManager.renderFoodBankList()">
+        </div>
+      </div>
+      <div class="food-bank-list" id="config-food-list">
+        <!-- Renderizado via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Edit Food -->
+  <div class="modal-overlay" id="modal-edit-food">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span>Editar Alimento</span>
+        <button class="modal-close" onclick="window.SettingsManager.closeEditFoodModal()">✕</button>
+      </div>
+      <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:16px;">
+        Valores para cada <strong style="color:var(--text-main);">100g</strong> (ou 1 unidade). O sistema usará isso para calcular qualquer porção.
+      </div>
+      <input type="hidden" id="edit-food-id">
+      
+      <div class="field-row">
+        <div class="modal-field" style="flex:1;">
+          <label>Kcal (Calorias)</label>
+          <input type="number" id="edit-food-kcal" step="0.1" inputmode="decimal">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="modal-field" style="flex:1;">
+          <label>Proteína (g)</label>
+          <input type="number" id="edit-food-prot" step="0.1" inputmode="decimal">
+        </div>
+        <div class="modal-field" style="flex:1;">
+          <label>Carbo (g)</label>
+          <input type="number" id="edit-food-carb" step="0.1" inputmode="decimal">
+        </div>
+        <div class="modal-field" style="flex:1;">
+          <label>Gordura (g)</label>
+          <input type="number" id="edit-food-fat" step="0.1" inputmode="decimal">
+        </div>
+      </div>
+      <button class="modal-save" onclick="window.SettingsManager.saveFoodEdit()">Salvar Alterações</button>
+      <button class="modal-save" id="btn-reset-food" style="background:#f2f2f7; color:var(--pink-primary); margin-top:10px; box-shadow:none;" onclick="window.SettingsManager.resetFoodEdit()">Restaurar Padrão</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- BOTTOM NAVIGATION BAR (iOS PWA STYLE)    -->
+  <!-- ══════════════════════════════════════════ -->
+  <nav class="bottom-nav">
+    <button class="tab-btn active" onclick="window.UIManager.switchTab('inicio', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      Início
+    </button>
+    <button class="tab-btn" onclick="window.UIManager.switchTab('treinos', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 5a2 2 0 00-2 2v10a2 2 0 002 2h0a2 2 0 002-2V7a2 2 0 00-2-2h0z"/><path d="M18 5a2 2 0 00-2 2v10a2 2 0 002 2h0a2 2 0 002-2V7a2 2 0 00-2-2h0z"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="4" y1="9" x2="2" y2="9"/><line x1="4" y1="15" x2="2" y2="15"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="15" x2="22" y2="15"/></svg>
+      Treinos
+    </button>
+    <button class="tab-btn" onclick="window.UIManager.switchTab('dieta', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>
+      Dieta
+    </button>
+    <button class="tab-btn" onclick="window.UIManager.switchTab('caminhada', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Gasto
+    </button>
+    <button class="tab-btn" onclick="window.UIManager.switchTab('config', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Ajustes
+    </button>
+  </nav>
+
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- MODAIS (SHEETS INFERIORES)                -->
+  <!-- ══════════════════════════════════════════ -->
+
+  <!-- 1. EDIT EXERCISE MODAL -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span>Editar Exercício</span>
+        <button class="modal-close" onclick="window.UIManager.closeEditWorkoutModal()">✕</button>
+      </div>
+      <div class="modal-field"><label>Nome do Exercício</label><input type="text" id="edit-name"></div>
+      <div class="modal-field"><label>Equipamento</label><input type="text" id="edit-equip"></div>
+      <div class="modal-field">
+        <label>Séries / Repetições / Descanso</label>
+        <div class="field-row">
+          <input type="text" id="edit-series" placeholder="Séries">
+          <input type="text" id="edit-reps" placeholder="Reps">
+          <input type="text" id="edit-rest" placeholder="Descanso">
+        </div>
+      </div>
+      <div class="modal-field"><label>Dica de Execução</label><textarea id="edit-tip" rows="3"></textarea></div>
+      <button class="modal-save" onclick="window.UIManager.saveWorkoutEdit()">Salvar Alterações</button>
+    </div>
+  </div>
+
+  <!-- 2. ADD FOOD QUANTITY MODAL -->
+  <div class="modal-overlay" id="foodQtyModal">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span id="qty-modal-food-name">Alimento</span>
+        <button class="modal-close" onclick="window.UIManager.closeAddFoodQtyModal()">✕</button>
+      </div>
+      <div class="modal-field">
+        <label id="qty-modal-unit-label">Quantidade</label>
+        <input type="number" id="food-qty-input" placeholder="Ex: 100" min="0.1" step="any">
+      </div>
+      <div class="modal-field">
+        <label>Refeição</label>
+        <select id="food-meal-select">
+          <option value="cafe">☕ Café da Manhã</option>
+          <option value="almoco">🍽️ Almoço</option>
+          <option value="tarde">🍌 Lanche da Tarde</option>
+          <option value="jantar">🥗 Jantar</option>
+          <option value="ceia">🥛 Ceia / Extras</option>
+        </select>
+      </div>
+      <button class="modal-save" onclick="window.UIManager.saveFoodToDiary()">Adicionar ao Diário</button>
+    </div>
+  </div>
+
+  <!-- 3. ADD CUSTOM FOOD MODAL -->
+  <div class="modal-overlay" id="customFoodModal">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span>Cadastrar Novo Alimento</span>
+        <button class="modal-close" onclick="window.UIManager.closeCustomFoodModal()">✕</button>
+      </div>
+      <form id="custom-food-form">
+        <div class="modal-field"><label>Nome do Alimento</label><input type="text" id="cf-name" placeholder="Ex: Whey Blend" required></div>
+        <div class="modal-field">
+          <label>Unidade de Medida</label>
+          <select id="cf-unit">
+            <option value="g">Gramas (g) - valores abaixo p/ 100g</option>
+            <option value="un">Unidade (un) - valores abaixo por unidade</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label>Categoria</label>
+          <select id="cf-group">
+            <option value="cereais">Cereais</option>
+            <option value="raizes">Raízes</option>
+            <option value="vegetais">Vegetais</option>
+            <option value="frutas">Frutas</option>
+            <option value="leguminosas">Leguminosas</option>
+            <option value="carnes_ovos">Carnes e Ovos</option>
+            <option value="lacteos">Lácteos</option>
+            <option value="castanhas">Castanhas</option>
+            <option value="oleos">Óleos</option>
+            <option value="doces">Doces</option>
+            <option value="especial" selected>Outros/Especial</option>
+          </select>
+        </div>
+        <div class="modal-field"><label>Calorias (kcal)</label><input type="number" id="cf-kcal" placeholder="Ex: 380" step="any" required></div>
+        <div class="modal-field"><label>Proteínas (g)</label><input type="number" id="cf-prot" placeholder="Ex: 20" step="0.1" required></div>
+        <div class="modal-field"><label>Carboidratos (g)</label><input type="number" id="cf-carb" placeholder="Ex: 12" step="0.1" required></div>
+        <div class="modal-field"><label>Gorduras (g)</label><input type="number" id="cf-fat" placeholder="Ex: 3.5" step="0.1" required></div>
+        <button type="submit" class="modal-save">Cadastrar e Adicionar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN ENTRY SCRIPTS -->
+</body>
+</html>
