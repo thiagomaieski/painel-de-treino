@@ -14,7 +14,16 @@ export const SettingsManager = {
   // ── PERFIL E BIOMETRIA ──
 
   renderProfile() {
-    // Pesos, Idade e Altura
+    // Pesos, Idade, Altura, Nome
+    const name = DB.getName();
+    const heroName = document.getElementById('hero-name-h1');
+    const heroAvatar = document.getElementById('hero-avatar-initial');
+    const configNomeEl = document.getElementById('config-nome');
+
+    if (heroName) heroName.innerText = name;
+    if (heroAvatar) heroAvatar.innerText = name.charAt(0).toUpperCase();
+    if (configNomeEl) configNomeEl.innerHTML = `${name} <span class="settings-icon-right">›</span>`;
+
     const initKgEl = document.getElementById('config-peso-inicial');
     const metaKgEl = document.getElementById('config-peso-meta');
     const idadeEl = document.getElementById('config-idade');
@@ -43,45 +52,86 @@ export const SettingsManager = {
     }
   },
 
+  promptNome() {
+    window.UIManager.openGenericPromptModal(
+      'Nome de Exibição',
+      'Como gostaria de ser chamado(a)?',
+      DB.getName(),
+      'text',
+      (val) => {
+        if (val && val.trim().length > 0) {
+          DB.setName(val.trim());
+          this.renderProfile();
+        }
+      }
+    );
+  },
+
   promptPesoInicial() {
-    const current = DB.getInitialKg();
-    const val = prompt('Digite seu peso inicial (kg):', current);
-    if (val !== null && !isNaN(parseFloat(val))) {
-      DB.setInitialKg(parseFloat(val));
-      this.renderProfile();
-      if (window.UIManager) window.UIManager.renderProgressWidgets();
-    }
+    window.UIManager.openGenericPromptModal(
+      'Peso Inicial',
+      'Digite seu peso inicial (kg):',
+      DB.getInitialKg(),
+      'number',
+      (val) => {
+        if (!isNaN(parseFloat(val))) {
+          DB.setInitialKg(parseFloat(val));
+          this.renderProfile();
+          if (window.UIManager) window.UIManager.renderProgressWidgets();
+        }
+      }
+    );
   },
 
   promptPesoMeta() {
-    const current = DB.getGoalKg();
-    const val = prompt('Digite sua meta de peso (kg):', current);
-    if (val !== null && !isNaN(parseFloat(val))) {
-      DB.setGoalKg(parseFloat(val));
-      this.renderProfile();
-      if (window.UIManager) window.UIManager.renderProgressWidgets();
-    }
+    window.UIManager.openGenericPromptModal(
+      'Meta de Peso',
+      'Digite sua meta de peso (kg):',
+      DB.getGoalKg(),
+      'number',
+      (val) => {
+        if (!isNaN(parseFloat(val))) {
+          DB.setGoalKg(parseFloat(val));
+          this.renderProfile();
+          if (window.UIManager) window.UIManager.renderProgressWidgets();
+        }
+      }
+    );
   },
 
   promptIdade() {
-    const current = DB.getAge();
-    const val = prompt('Digite sua idade:', current);
-    if (val !== null && !isNaN(parseInt(val))) {
-      DB.setAge(parseInt(val));
-      this.renderProfile();
-    }
+    window.UIManager.openGenericPromptModal(
+      'Sua Idade',
+      'Digite sua idade:',
+      DB.getAge(),
+      'number',
+      (val) => {
+        if (!isNaN(parseInt(val))) {
+          DB.setAge(parseInt(val));
+          this.renderProfile();
+        }
+      }
+    );
   },
 
   promptAltura() {
     let current = DB.getHeight();
-    if (current > 3) current = (current / 100).toFixed(2); // Convert to meters for prompt if it's in cm
-    const val = prompt('Digite sua altura em metros (ex: 1.75):', current);
-    if (val !== null && !isNaN(parseFloat(val))) {
-      let h = parseFloat(val);
-      if (h < 3) h = h * 100; // Store as cm
-      DB.setHeight(h);
-      this.renderProfile();
-    }
+    if (current > 3) current = (current / 100).toFixed(2);
+    
+    window.UIManager.openGenericPromptModal(
+      'Sua Altura',
+      'Digite sua altura em metros (ex: 1.75):',
+      current,
+      'number',
+      (val) => {
+        if (!isNaN(parseFloat(val))) {
+          let h = parseFloat(val);
+          if (h < 3) h = h * 100;
+          DB.setHeight(h);
+          this.renderProfile();
+        }
+      }
+    );
   },
 
   handleAvatarUpload(event) {

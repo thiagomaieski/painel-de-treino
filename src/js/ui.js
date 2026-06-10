@@ -847,6 +847,35 @@ export const UIManager = {
   },
 
   // Modal para cadastrar alimento customizado
+  openGenericPromptModal(title, label, defaultValue, type, onSave) {
+    const modal = document.getElementById('genericPromptModal');
+    if (!modal) return;
+    
+    document.getElementById('gpm-title').innerText = title;
+    document.getElementById('gpm-label').innerText = label;
+    
+    const input = document.getElementById('gpm-input');
+    input.type = type;
+    input.value = defaultValue;
+    if (type === 'number') input.step = 'any';
+    else input.removeAttribute('step');
+
+    const form = document.getElementById('genericPromptForm');
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      onSave(input.value);
+      this.closeGenericPromptModal();
+    };
+
+    modal.classList.add('open');
+    setTimeout(() => input.focus(), 100);
+  },
+
+  closeGenericPromptModal() {
+    const modal = document.getElementById('genericPromptModal');
+    if (modal) modal.classList.remove('open');
+  },
+
   openAddCustomFoodModal(prefilledName = '') {
     const modal = document.getElementById('customFoodModal');
     const nameInput = document.getElementById('cf-name');

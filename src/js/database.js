@@ -252,6 +252,13 @@ export const DB = {
   ACTIVITY_FACTOR,
   KCAL_PER_MIN_WALK,
 
+  getName() {
+    return localStorage.getItem('julia_name') || "Julia";
+  },
+  setName(val) {
+    localStorage.setItem('julia_name', val);
+  },
+
   getInitialKg() {
     return parseFloat(localStorage.getItem('julia_initial_kg')) || DEFAULT_INITIAL_KG;
   },
