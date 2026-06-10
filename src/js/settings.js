@@ -17,11 +17,11 @@ export const SettingsManager = {
     // Pesos, Idade, Altura, Nome
     const name = DB.getName();
     const heroName = document.getElementById('hero-name-h1');
-    const heroAvatar = document.getElementById('hero-avatar-initial');
+    const heroAvatarInitial = document.getElementById('hero-avatar-initial');
     const configNomeEl = document.getElementById('config-nome');
 
     if (heroName) heroName.innerText = name;
-    if (heroAvatar) heroAvatar.innerText = name.charAt(0).toUpperCase();
+    if (heroAvatarInitial) heroAvatarInitial.innerText = name.charAt(0).toUpperCase();
     if (configNomeEl) configNomeEl.innerHTML = `${name} <span class="settings-icon-right">›</span>`;
 
     const initKgEl = document.getElementById('config-peso-inicial');
