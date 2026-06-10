@@ -9,8 +9,8 @@
   <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="./manifest.json">
   <title>JuliaFit — Treino & Dieta</title>
-  <script type="module" crossorigin src="/painel-de-treino/assets/index-BKL0-Nc9.js"></script>
-  <link rel="stylesheet" crossorigin href="/painel-de-treino/assets/index-D3tI6uCr.css">
+  <script type="module" crossorigin src="/painel-de-treino/assets/index-Yk5u71ep.js"></script>
+  <link rel="stylesheet" crossorigin href="/painel-de-treino/assets/index-C0iFBMJf.css">
 </head>
 <body>
 
@@ -838,10 +838,6 @@
   <div class="page" id="page-config">
     <div class="settings-section">
       <div class="settings-section-title">Perfil & Biometria</div>
-      <div class="profile-row" onclick="window.SettingsManager.promptNome()">
-        <span class="lbl">Nome</span>
-        <span class="val" id="config-nome">Julia <span class="settings-icon-right">›</span></span>
-      </div>
       <div class="avatar-uploader">
         <img id="settings-avatar-img" class="avatar-preview" src="" alt="J" style="display: none;">
         <div id="settings-avatar-placeholder" class="avatar-preview">J</div>
@@ -849,6 +845,10 @@
         <input type="file" id="avatar-file-input" class="file-input" accept="image/*" onchange="window.SettingsManager.handleAvatarUpload(event)">
       </div>
       <div class="settings-list">
+        <button class="settings-item" onclick="window.SettingsManager.promptNome()">
+          <span>Nome</span>
+          <span class="settings-item-val" id="config-nome">Julia <span class="settings-icon-right">›</span></span>
+        </button>
         <button class="settings-item" onclick="window.SettingsManager.promptIdade()">
           <span>Idade</span>
           <span class="settings-item-val" id="config-idade">20 Anos <span class="settings-icon-right">›</span></span>
@@ -1042,17 +1042,17 @@
 
   <!-- GENERIC PROMPT MODAL -->
   <div class="modal-overlay" id="genericPromptModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="gpm-title">Editar</h3>
-        <button class="modal-close" onclick="window.UIManager.closeGenericPromptModal()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span id="gpm-title">Editar</span>
+        <button class="modal-close" onclick="window.UIManager.closeGenericPromptModal()">✕</button>
       </div>
       <form id="genericPromptForm">
         <div class="modal-field">
           <label id="gpm-label">Valor</label>
           <input type="text" id="gpm-input" required>
         </div>
-        <button type="submit" class="modal-save">Salvar</button>
+        <button type="submit" class="modal-save" style="margin-top: 10px;">Salvar</button>
       </form>
     </div>
   </div>
