@@ -1,8 +1,8 @@
 const CACHE_NAME = 'juliafit-cache-v1';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+  '/painel-de-treino/',
+  '/painel-de-treino/index.html',
+  '/painel-de-treino/manifest.json'
 ];
 
 // Install Event - Pre-cache basic files
