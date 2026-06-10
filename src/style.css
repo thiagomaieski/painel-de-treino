@@ -242,9 +242,9 @@ input, select, textarea {
   left: 0;
   right: 0;
   height: calc(64px + env(safe-area-inset-bottom, 0px));
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--glass-border);
   display: flex;
   justify-content: space-around;
