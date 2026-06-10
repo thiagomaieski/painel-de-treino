@@ -218,6 +218,24 @@ input, select, textarea {
 .hero-stat-compact .val { font-size: 1.05rem; font-weight: 800; color: var(--text-main); }
 .hero-stat-compact .lbl { font-size: 0.65rem; color: var(--text-tertiary); text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px; font-weight: 700; }
 
+.weight-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-body);
+  border-radius: 12px;
+  padding: 16px;
+}
+.weight-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.weight-stat .val { font-size: 1.15rem; font-weight: 800; color: var(--text-main); }
+.weight-stat .lbl { font-size: 0.7rem; color: var(--text-tertiary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; }
+
+
 /* ── BOTTOM TAB NAVIGATION ── */
 .bottom-nav {
   position: fixed;
